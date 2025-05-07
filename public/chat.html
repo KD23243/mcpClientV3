@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Vet Clinic Assistant</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #e5e5e5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh;
+            max-height: 700px;
+            background-color: #f8f9fa;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #d1d1d6;
+        }
+        .vet-logo {
+            width: 36px;
+            height: 36px;
+            margin-right: 10px;
+        }
+        .chat-header {
+            background: linear-gradient(90deg, #6ec1e4 0%, #b2f7ef 100%);
+            color: #234567;
+            padding: 10px 15px;
+            font-weight: 600;
+            text-align: center;
+            border-bottom: 1px solid #d1d1d6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.1em;
+        }
+        .header-icon {
+            font-size: 1.4em;
+            color: #007bff;
+            cursor: pointer;
+        }
+        .header-icon.back {
+            font-weight: bold;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+        }
+        .message-wrapper.assistant {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+        .message-wrapper.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        .message-wrapper.annon-user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        .message-wrapper.system {
+            align-self: center;
+            width: 100%;
+            max-width: 95%;
+            align-items: center;
+        }
+        .sender-name {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-bottom: 3px;
+            padding: 0 5px;
+        }
+        .message {
+            padding: 10px 14px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            position: relative;
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .message::before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            bottom: 5px;
+        }
+        .assistant-message {
+            background-color: #e0f7fa;
+            color: #234567;
+            border-bottom-left-radius: 5px;
+        }
+        .assistant-message::before {
+            border-width: 8px 10px 8px 0;
+            border-color: transparent #e0f7fa transparent transparent;
+            left: -9px;
+        }
+        .user-message {
+            background-color: #ffe0b2;
+            color: #234567;
+            border-bottom-right-radius: 5px;
+        }
+        .user-message::before {
+            border-width: 8px 0 8px 10px;
+            border-color: transparent transparent transparent #ffe0b2;
+            right: -9px;
+        }
+        .system-message {
+            font-style: italic;
+            background-color: #f0f0f0;
+            color: #6c757d;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.85em;
+            padding: 5px 10px;
+        }
+        .message button, .message a.button-link {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 8px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .message button:hover, .message a.button-link:hover {
+            background-color: #0056b3;
+        }
+        .pet-profile {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 0.9em;
+        }
+        .pet-profile ul { list-style: none; padding: 0; margin: 0; }
+        .pet-profile li { margin-bottom: 5px; }
+        .pet-profile li strong {
+            display: inline-block;
+            min-width: 110px;
+            color: #495057;
+            font-weight: 500;
+        }
+        .chat-input {
+            border-top: 1px solid #d1d1d6;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-wrapper {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #d1d1d6;
+            border-radius: 20px;
+            padding: 0 10px;
+        }
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px 5px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1em;
+            background-color: transparent;
+            outline: none;
+        }
+        .mic-icon {
+            padding: 5px;
+            font-size: 1.4em;
+            color: #6c757d;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .mic-icon:hover {
+            color: #007bff;
+        }
+        .chat-input button {
+            padding: 10px 15px;
+            background-color: transparent;
+            color: #007bff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            flex-shrink: 0;
+        }
+        .chat-input button:hover {
+            color: #0056b3;
+            background-color: #e2e6ea;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Vet Clinic Logo" class="vet-logo" />
+            Vet Clinic Assistant
+            <span class="header-icon menu">☰</span>
+        </div>
+        <div class="chat-messages" id="messages"></div>
+        <div class="chat-input">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Ask about your pet's health, appointments, or services..." autofocus />
+                <span class="mic-icon" title="Voice Input"><i class="material-icons">mic</i></span>
+            </div>
+            <span id="sendBtn" style="cursor:pointer;"><i class="material-icons">send</i></span>
+        </div>
+    </div>
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        let loggedIn = false;
+        let loginInProgress = false;
+        let firstName = '';
+        // Helper to add a message bubble
+        function appendMessage({text, sender, html = false, system = false, onButton, senderName}) {
+            const wrapper = document.createElement('div');
+            if (system) {
+                wrapper.className = 'message-wrapper system';
+            } else if (sender === 'assistant') {
+                wrapper.className = 'message-wrapper assistant';
+            } else if (sender === 'user') {
+                wrapper.className = 'message-wrapper user';
+            } else if (sender === 'annon-user') {
+                wrapper.className = 'message-wrapper annon-user';
+            }
+            if (senderName) {
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'sender-name';
+                nameDiv.textContent = senderName;
+                wrapper.appendChild(nameDiv);
+            }
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message ' + (system ? 'system-message' : (sender === 'assistant' ? 'assistant-message' : 'user-message'));
+            if (html) {
+                msgDiv.innerHTML = text;
+            } else {
+                msgDiv.textContent = text;
+            }
+            wrapper.appendChild(msgDiv);
+            messagesDiv.appendChild(wrapper);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            if (onButton && msgDiv.querySelector('button')) {
+                msgDiv.querySelector('button').onclick = onButton;
+            }
+            saveChatHistory();
+        }
+        function saveChatHistory() {
+            const msgs = Array.from(messagesDiv.children).map(div => ({
+                html: div.innerHTML,
+                className: div.className
+            }));
+            localStorage.setItem('chatHistory', JSON.stringify(msgs));
+        }
+        function loadChatHistory() {
+            const msgs = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            messagesDiv.innerHTML = '';
+            msgs.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = msg.className;
+                div.innerHTML = msg.html;
+                messagesDiv.appendChild(div);
+            });
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        async function checkLoginStatus() {
+            const res = await fetch('/chat?tool=check');
+            const data = await res.json();
+            return !(data && typeof data.result === 'string' && data.result.includes('Please login'));
+        }
+        async function handleUserInput(forceText, skipUserMsg) {
+            const text = forceText !== undefined ? forceText : userInput.value.trim();
+            if (!text) return;
+            if (!skipUserMsg) appendMessage({text, sender: 'user', senderName: loggedIn ? (firstName || 'User') : 'Guest'});
+            if (!skipUserMsg) userInput.value = '';
+            const lower = text.toLowerCase();
+            if (lower.includes('mobile') || lower.includes('username')) {
+                const isLoggedIn = await checkLoginStatus();
+                if (!isLoggedIn) {
+                    localStorage.setItem('lastUserCommand', text);
+                    if (!loginInProgress) {
+                        loginInProgress = true;
+                        appendMessage({
+                            text: 'Please login to use this feature. <button id="loginBtn">Login</button>',
+                            sender: 'assistant',
+                            html: true,
+                            senderName: 'Pet Store Assistant',
+                            onButton: function() {
+                                window.location.href = '/login';
+                            }
+                        });
+                    }
+                    return;
+                }
+                loginInProgress = false;
+                let response = "";
+                if (lower.includes('mobile')) {
+                    response = await fetch('/chat?tool=mobile').then(r => r.json()).then(d => d.result);
+                } else if (lower.includes('username')) {
+                    response = await fetch('/chat?tool=username').then(r => r.json()).then(d => d.result);
+                }
+                if (typeof response === 'object') {
+                    response = JSON.stringify(response, null, 2);
+                }
+                appendMessage({text: response, sender: 'assistant', senderName: 'Pet Store Assistant'});
+                localStorage.removeItem('lastUserCommand');
+            } else {
+                appendMessage({text: "Sorry, I didn't understand. Try mentioning 'mobile' or 'username'.", sender: 'assistant', senderName: 'Pet Store Assistant'});
+                localStorage.removeItem('lastUserCommand');
+            }
+        }
+        sendBtn.onclick = () => handleUserInput();
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') handleUserInput();
+        });
+        window.onload = function() {
+            loadChatHistory();
+            checkLoginStatus().then(async isLoggedIn => {
+                loggedIn = isLoggedIn;
+                if (isLoggedIn) {
+                    // Fetch username and show welcome message
+                    const res = await fetch('/chat?tool=firstname');
+                    const data = await res.json();
+                    if (data.result && typeof data.result === 'string' && data.result.trim() !== '') {
+                        firstName = data.result.trim();
+                        appendMessage({
+                            text: `Welcome back, ${firstName}! How can I help with your pet's care today?`,
+                            sender: 'system',
+                            system: true
+                        });
+                    }
+                } else {
+                    appendMessage({
+                        text: "Welcome to the Vet Clinic Assistant! I'm here to help you with pet health, appointments, and clinic services.",
+                        sender: 'system',
+                        system: true
+                    });
+                }
+                const lastCmd = localStorage.getItem('lastUserCommand');
+                if (isLoggedIn && lastCmd) {
+                    handleUserInput(lastCmd, true);
+                }
+            });
+        };
+    </script>
+</body>
+</html>
